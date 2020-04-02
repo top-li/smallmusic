@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title></title>
+	<link rel="stylesheet" href="">
+	<script src="https://www.jq22.com/jquery/jquery-3.3.1.js"></script>
+</head>
+<style>
+	*{
+		padding: 0;
+		margin: 0;
+	}
+	.audioPlayer{
+		position: relative;
+		width: 700px;
+		height: 60px;
+		background-color: #74759b;
+		border-radius: 10px;
+		margin: 300px auto;
+		padding: 0 14px;
+	}
+	.play{
+		display: block;
+	}
+	.pause{
+		display: none;
+	}
+.totalProgress{
+		cursor: pointer;
+		position: absolute;
+		top: 34px;
+		left: 64px;
+		width: 500px;
+		height: 8px;
+		background-color: #eb507e;
+		border-radius: 10px;
+	}
+.currentProgress{
+		width: 0;
+		height: 100%;
+		background-color: #e9d7df;
+		border-top-left-radius: 10px;
+		border-bottom-left-radius: 10px;
+	}
+	.btn{
+		    padding-top: 15px;
+		    width: 30px;
+            height: 30px;
+            cursor: pointer;
+	}
+	.btn img{
+		width: 30px;
+		height: 30px;
+	}
+	.time{
+		display: block;
+		position: absolute;
+		top: 6px;
+		left: 64px;
+		color: #fff;
+	}
+	.next{
+		position: absolute;
+		top: 14px;
+		float: right;
+		right: 70px;
+	}
+	.next img{
+		cursor: pointer;
+		width: 34px;
+		height: 34px;
+	}
+</style>
+
+<body>
+<div>
+<p>采用jQuery写js部分。</p>
+<p>具备自动播放歌曲。</p>
+<p>具备可以点击进度条，以及拖动。</p>
+<p>具备直接点击下一首/上一首开始播放。</p>
+<p>基本操作具备。</p>
+</div>
+	<div class="audioPlayer">
+		<div class="time">
+			<span class="currentTime">00:00</span>/
+			<span class="totalTime">00:00</span>
+		</div>
+		<div class="btn">
+			<img class="play" src="./image/播放.png" alt="">
+			<img class="pause" src="./image/暂停-ff9900.png" alt="">
+		</div>
+		<div class="music-box">
+		<audio id="audio" autoplay="autoplay"></audio>
+	    </div>
+		<div class="totalProgress">
+			<div class="currentProgress"></div>
+		</div>
+		<div class="next">
+			<img src="./image/上一首.png" alt="" class="prove">
+			<img src="./image/下一首.png" alt="" class="nextto">
+		</div>
+	</div>
+
+</body>
+
+<script>
+	 // var audio = $('#audio')
+	 var audio = document.getElementById('audio')
+	 var totalProgress = $('.totalProgress');
+	 var currentProgress = $('.currentProgress');
+	 var currentTime = $('.currentTime');
+	 var totalTime = $('.totalTime');
+	 var nextto = $('.nextto');
+	 var prove = $('.prove');
+	 var musicName = ["Drama","复活","下山","月光"]
+	 var msrc=["music/Hannie&HICARI&Isaiah Dreads - Drama [mqms2].mp3","music/乔任梁 - 复活.mp3","music/麦小兜 - 下山 [mqms2].mp3","music/胡彦斌 - 月光 [mqms2].mp3"];
+	 var currentIndex=-1;
+	  var ssrc = msrc.length-1
+	 var timer;
+
+      //单击按钮时
+	 $('.btn').on('click',()=>{
+
+	 	if(currentIndex==-1){
+            currentIndex=0;
+            audio.src=msrc[currentIndex];
+        }
+	 	//如果音乐暂停
+	 	if(audio.paused){
+	 		audio.play();  //播放音乐
+	 		//更改播放按钮
+	 		$('.play').css({'display':'none'});
+	 		$('.pause').css({'display':'block'})
+
+	 	}else{
+	 		audio.pause();  //暂停音乐
+	 		$('.play').css({'display':'block'});
+	 		$('.pause').css({'display':'none'})	
+	 	}
+	 })
+
+	 		//计时器实时变动全局跟踪
+	 		timer = setInterval(()=>{
+
+	 			if(audio.ended){ //如果音乐播放结束
+	 				currentIndex++;
+	 				if(currentIndex>ssrc){    //如果大于数组中的数那么回到一开始
+			 		currentIndex=0
+			 		audio.src = msrc[0];
+			 		audio.play();}
+		 		else{
+		 			audio.src=msrc[currentIndex]
+		 			audio.play(); 
+	 		     }
+	 				// $('.play').css({'display':'block'})
+	 				// $('.pause').css({'display':'none'})
+
+	 			}else{
+	 				//更改时间
+
+	 				currentTime.text(formatTime(audio.currentTime));
+	 				totalTime.text(formatTime(audio.duration));
+
+	 				//更改进度条
+	 				var ratio = audio.currentTime/audio.duration;
+	 	            currentProgress.css({'width':ratio*100+'%'});
+
+	 			}
+	 		},100)
+	 //点击下一首切换歌曲
+	 nextto.on('click',()=>{
+	 	if(audio.paused){
+	 		currentIndex=0;
+	 		// audio.src = msrc[currentIndex]
+	 		$('.play').css({'display':'none'});
+	 		$('.pause').css({'display':'block'});
+
+	 	}
+	 	    currentIndex ++;
+	 	if(currentIndex>ssrc){    //如果大于数组中的数那么回到一开始
+	 		currentIndex=0
+	 		audio.src = msrc[0];
+	 		audio.play();}//重新开始播放音乐
+	 		else{
+	 			audio.src=msrc[currentIndex]
+	 			audio.play(); 
+	 		}
+	 	  
+	 	console.log('下一首')
+	 })
+
+
+	 //点击上一首切换歌曲
+	  prove.on('click',()=>{
+	  	if(audio.paused){
+	 		currentIndex=-1;
+	 		audio.src = msrc[currentIndex]
+	 		$('.play').css({'display':'none'});
+	 		$('.pause').css({'display':'block'});
+	 	}
+	 	   currentIndex --;
+	 	if(currentIndex<0){    //如果小于数组中的数那么回到一开始
+	 		currentIndex=ssrc;
+	 		audio.src = msrc[ssrc];
+	 		audio.play();}//重新开始播放音乐
+	 		else{
+	 			audio.src=msrc[currentIndex]
+	 			audio.play(); 
+	 		} 
+	 	console.log('上一首')
+	 })
+
+	 //单击进度条更改进度
+	 totalProgress.on('click',(ev)=>{
+
+	 	//获取百分比
+	 	var ratio = getRatio(ev)
+	 	currentProgress.css({'width':ratio*100+'%'});
+
+	 	//根据百分比变动音乐进度
+	 	audio.currentTime = audio.duration * ratio;
+	 	// console.log(audio.Volume);
+	 	
+	 })
+
+
+     //单击后拖动进度
+	 totalProgress.mousedown( (ev)=>{
+
+	 	totalProgress.mousemove((ev)=>{
+	 		//获取百分比
+	 		var ratio = getRatio(ev)
+	 	 	currentProgress.css({'width':ratio*100+'%'});
+
+	 	 	//根据百分比变动音乐进度这里不需要
+	 	    // audio.currentTime = audio.duration * ratio;	
+	 	})
+	 })
+	 totalProgress.mouseup((ev)=>{
+	 totalProgress.off("mousemove");
+
+	 // 	audio.currentTime 
+	 })
+
+
+
+	 function getRatio(ev){
+	 	//总进度条长度
+	 	var totalWidth = totalProgress[0].offsetWidth;
+
+	 	//总进度条的X坐标
+	 	var totalX = totalProgress.offset().left;
+
+	 	//鼠标的X坐标
+
+	 	var mouseX = ev.clientX;
+
+	 	var ratio =(mouseX-totalX)/totalWidth;
+
+	 	return ratio;
+	 }
+
+	 //时间格式化
+	 function formatTime(time){
+	 	time =~~time;  //取整
+	 	var formatTime;
+	 	if (time<10) {
+	 		formatTime = '00:0' + time;
+	 	}else if (time<60) {
+	 		formatTime = '00:' + time;
+	 	}else{
+	 		var m = ~~(time/60);
+	 		if(m<10){
+	 			m='0' + m;
+	 		}
+	 		var s = time % 60;
+	 		if (s<10) {
+	 			s='0' + s;
+	 		}
+	 		formatTime = m + ':' + s;
+	 	}
+	 	return formatTime;
+	 }
+
+</script>
+</html>
